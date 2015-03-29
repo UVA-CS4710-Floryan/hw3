@@ -5,6 +5,9 @@ __pycache__/
 # C extensions
 *.so
 
+# YCM conf file
+.ycm_extra_conf.py
+
 # Distribution / packaging
 .Python
 env/
