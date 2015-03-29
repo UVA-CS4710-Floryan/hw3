@@ -8,9 +8,10 @@ class Negotiator:
     def initialize(self, preferences):
         self.preferences = preferences
 
-    # Given the current utility mapping and any other historical data from 
-    # the current series of negotiations, make a proposed offer
-    def make_offer(self):
+    # Given the current utility mapping, the most recently made offer from the other negotiator, 
+    # and any other historical data from the current series of negotiations, make a proposed offer
+    # To accept an offer, return the same offer as that passed in
+    def make_offer(self, offer):
         pass
 
     # Return the utility given by the last offer

@@ -17,10 +17,10 @@ def negotiate(num_iterations, negotiator_a, negotiator_b):
         offer_a = negotiator_a.make_offer(offer_b)
         offer_b = negotiator_b.make_offer(offer_a)
         if offer_a == offer_b:
-            return (True, i)
+            return (True, offer_a, i)
         negotiator_a.receive_utility(negotiator_b.get_utility())
         negotiator_b.receive_utility(negotiator_a.get_utility())
-    return (False, num_iterations)
+    return (False, None, num_iterations)
 
 if __id__ == "__main__":
     score_a = score_b = 0
@@ -34,10 +34,12 @@ if __id__ == "__main__":
        b_order = sorted(b_mapping, key=b_mapping.get, reverse=True)
        negotiator_a.initialize(a_mapping)
        negotiator_b.initialize(b_mapping)
-       (result, count) = negotiate(num_iters, negotiator_a, negotiator_b)
-       total = len(a_order)
-       points_a = reduce(lambda points, item: points + ((total / (a_order.index(item) + 1)) - abs(a_order.index(item) - result.index(item))), 0)
-       points_b = reduce(lambda points, item: points + ((total / (b_order.index(item) + 1)) - abs(b_order.index(item) - result.index(item))), 0)
+       (result, order, count) = negotiate(num_iters, negotiator_a, negotiator_b)
+       points_a = points_b = 0
+       if result:
+           total = len(a_order)
+           points_a = reduce(lambda points, item: points + ((total / (a_order.index(item) + 1)) - abs(a_order.index(item) - order.index(item))), 0)
+           points_b = reduce(lambda points, item: points + ((total / (b_order.index(item) + 1)) - abs(b_order.index(item) - order.index(item))), 0)
        results = (result, points_a, points_b, count)
        score_a += points_a
        score_b += points_b
