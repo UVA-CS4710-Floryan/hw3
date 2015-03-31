@@ -1,8 +1,11 @@
-class Negotiator:
+from functools import reduce
+
+class BaseNegotiator:
     # Constructor 
     def __init__(self):
-        self.preferences = None
-        self.history = None
+        self.preferences = []
+        self.history = []
+        self.offer = []
 
     # Performs per-round initialization - takes in a dictionary of item : utility mappings
     def initialize(self, preferences):
@@ -14,9 +17,10 @@ class Negotiator:
     def make_offer(self, offer):
         pass
 
-    # Return the utility given by the last offer
-    def get_utility(self):
-        pass
+    # Return the utility given by the last offer - Do not modify this method.
+    def utility(self):
+        total = len(self.preferences)
+        return reduce(lambda points, item: points + ((total / (self.offer.index(item) + 1)) - abs(self.offer.index(item) - self.preferences.index(item))), self.offer, 0)
 
     # Store the utility the other negotiator received from the last offer
     def receive_utility(self, utility):
