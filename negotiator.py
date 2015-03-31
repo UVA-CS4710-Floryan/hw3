@@ -7,12 +7,15 @@ from random import random, shuffle
 # we eventually pick as our offer. This is necessary for utility computation.
 # Second, note that we ensure that we never accept an offer of "None".
 class Negotiator(BaseNegotiator):
+    # Override the make_offer method from BaseNegotiator to accept a given offer 5%
+    # of the time, and return a random permutation the rest of the time.   
     def make_offer(self, offer):
         if random() < 0.05 and offer:
-            self.offer = offer
+            # Very important - we save the offer we're going to return as self.offer
+            self.offer = offer[:]
             return offer
         else:
             ordering = self.preferences
             shuffle(ordering)
-            self.offer = ordering
+            self.offer = ordering[:]
             return self.offer
