@@ -64,8 +64,6 @@ if __name__ == "__main__":
         a_order = sorted(a_mapping, key=a_mapping.get, reverse=True)
         b_mapping = {item["item_name"] : int(item["negotiator_b"]) for item in mapping}
         b_order = sorted(b_mapping, key=b_mapping.get, reverse=True)
-        print("B:")
-        print(b_order)
         # Give each negotiator their preferred item ordering
         negotiator_a.initialize(a_order, num_iters)
         negotiator_b.initialize(b_order, num_iters)
