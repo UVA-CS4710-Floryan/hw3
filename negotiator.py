@@ -15,7 +15,7 @@ class Negotiator(BaseNegotiator):
             self.offer = offer[:]
             return offer
         else:
-            ordering = self.preferences
+            ordering = self.preferences[:]
             shuffle(ordering)
             self.offer = ordering[:]
             return self.offer

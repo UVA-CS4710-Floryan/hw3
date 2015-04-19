@@ -25,24 +25,36 @@ def read_scenario(parameterfile_name):
     # The main negotiation function, responsible for running a single scenario & coordinating interactions between the two
     # negotiators.
 def negotiate(num_iterations, negotiator_a, negotiator_b):
-    # Get the initial offers from each negotiator - we pass in None to signify that no previous opposing offers have been made
-    (offer_a, offer_b) = (negotiator_a.make_offer(None), negotiator_b.make_offer(None))
+    # Get the initial offer from negotiator a - we pass in None to signify that no previous opposing offers have been made
+    (offer_a, offer_b) = (negotiator_a.make_offer(None), None)
+
     # We scale the reported utility by a random factor
     a_scale = randint(1, 11)
     b_scale = randint(1, 11)
+
     # Keep trading offers until we reach an agreement or the iteration limit, whichever comes first
     for i in range(num_iterations):
-        print(offer_a, offer_b)
+    	#print(offer_a, offer_b)
+        
         # Get from each negotiator the utility it received from the offer it most recently gave 
         utility = (a_scale * negotiator_a.utility(), b_scale * negotiator_b.utility())
-        negotiator_a.receive_utility(utility[1])
+        # Send b the latest offer from a and allow it to rebut
         negotiator_b.receive_utility(utility[0])
+        offer_b = negotiator_b.make_offer(offer_a)
+        
         # We signify agreement by both offers being structurally equal
         if offer_a == offer_b:
             return (True, offer_a, i)
-        # If we didn't agree, let each negotiator know what the other was offering, and get their counteroffer
+
+        # If we didn't agree, let a respond to b's offer, recalculate utility and send 'a' the info
+        utility = (a_scale * negotiator_a.utility(), b_scale * negotiator_b.utility())
+        negotiator_a.receive_utility(utility[1])
         offer_a = negotiator_a.make_offer(offer_b)
-        offer_b = negotiator_b.make_offer(offer_a)
+
+        if offer_a == offer_b:
+            return (True, offer_a, i)
+
+
     # If we failed overall, then there's no ordering to return
     return (False, None, num_iterations)
 
@@ -52,10 +64,18 @@ if __name__ == "__main__":
         print("Please provide at least one scenario file, in csv format.")
         exit(-42)
     score_a = score_b = 0
+
+    #instantiate the correct agents
+    moduleAgent1 = __import__(argv[1])
+    moduleAgent2 = __import__(argv[2])
+
+    classAgent1 = getattr(moduleAgent1, argv[1])
+    classAgent2 = getattr(moduleAgent2, argv[2])
+
     # We will replace Negotiator here with <your id>_Negotiator, as specified in the Readme
-    negotiator_a = Negotiator()
-    negotiator_b = Negotiator()
-    for scenario in argv[1:]:
+    negotiator_a = classAgent1()
+    negotiator_b = classAgent2()
+    for scenario in argv[3:]:
         # Get the scenario parameters
         (num_iters, mapping) = read_scenario(scenario)
         # Separate the mapping out for each negotiator, and sort the items from it into a list
@@ -67,16 +87,23 @@ if __name__ == "__main__":
         # Give each negotiator their preferred item ordering
         negotiator_a.initialize(a_order, num_iters)
         negotiator_b.initialize(b_order, num_iters)
-        # Get the result of the negotiation
-        (result, order, count) = negotiate(num_iters, negotiator_a, negotiator_b)
-        # Assign points to each negotiator. Note that if the negotiation failed, each negotiatior receives a negative penalty
-        # However, it is also possible in a "successful" negotiation for a given negotiator to receive negative points
-        (points_a, points_b) = (negotiator_a.utility(), negotiator_b.utility()) if result else (-len(a_order), -len(b_order))
-        results = (result, points_a, points_b, count)
-        score_a += points_a
-        score_b += points_b
-        # Update each negotiator with the final result, points assigned, and number of iterations taken to reach an agreement
-        negotiator_a.receive_results(results)
-        negotiator_b.receive_results(results)
-        print("{} negotiation:\n\tNegotiator A: {}\n\tNegotiator B: {}".format("Successful" if result else "Failed", points_a, points_b))
-    print("Final result:\n\tNegotiator A: {}\n\tNegotiator B: {}".format(score_a, score_b))
+
+        for i in range(10):
+            try:
+                # Get the result of the negotiation
+                (result, order, count) = negotiate(num_iters, negotiator_a, negotiator_b)
+                # Assign points to each negotiator. Note that if the negotiation failed, each negotiatior receives a negative penalty
+                # However, it is also possible in a "successful" negotiation for a given negotiator to receive negative points
+                (points_a, points_b) = (negotiator_a.utility(), negotiator_b.utility()) if result else (-len(a_order), -len(b_order))
+                results = (result, points_a, points_b, count)
+                score_a += points_a
+                score_b += points_b
+                # Update each negotiator with the final result, points assigned, and number of iterations taken to reach an agreement
+                negotiator_a.receive_results(results)
+                negotiator_b.receive_results(results)
+                #print("{} negotiation:\n\tNegotiator A: {}\n\tNegotiator B: {}".format("Successful" if result else "Failed", points_a, points_b))
+                print("{},{},{},{}".format(argv[1],argv[2],points_a,points_b))
+            except:
+                print("{},{},{},{}".format(argv[1],argv[2],"Runtime Error","Runtime Error"))
+    #print("Final result:\n\tNegotiator A: {}\n\tNegotiator B: {}".format(score_a, score_b))
+    print("{},{},{},{}".format(argv[1],argv[2],score_a,score_b))
