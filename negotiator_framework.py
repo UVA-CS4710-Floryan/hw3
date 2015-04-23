@@ -1,8 +1,8 @@
 from csv import DictReader
 from sys import argv, exit
 from itertools import islice
-from negotiator import Negotiator
 from random import seed, randint
+from functools import reduce
 
 # read_scenario(parameterfile_name : String) --> (int, list(dict))
     # Utility function to read in a single scenario from a csv file
@@ -20,6 +20,10 @@ def read_scenario(parameterfile_name):
                 # Use Python's builtin CSV reader to read the rest of the file as specified
                 list(DictReader(parameterfile, fieldnames=["item_name", "negotiator_a", "negotiator_b"]))
                 )
+# Our own copy of the utility function, to prevent misbehavior related to modifying the function
+def utility(preferences, offer):
+        total = len(preferences)
+        return reduce(lambda points, item: points + ((total / (offer.index(item) + 1)) - (2 / (preferences.index(item) + 1)) * abs(offer.index(item) - preferences.index(item))), offer, 0)
 
 # negotiate(num_iterations :  Int, negotiator_a : BaseNegotiator, negotiator_b : BaseNegotiator) --> (Boolean, list(String), Int)
     # The main negotiation function, responsible for running a single scenario & coordinating interactions between the two
@@ -94,7 +98,7 @@ if __name__ == "__main__":
                 (result, order, count) = negotiate(num_iters, negotiator_a, negotiator_b)
                 # Assign points to each negotiator. Note that if the negotiation failed, each negotiatior receives a negative penalty
                 # However, it is also possible in a "successful" negotiation for a given negotiator to receive negative points
-                (points_a, points_b) = (negotiator_a.utility(), negotiator_b.utility()) if result else (-len(a_order), -len(b_order))
+                (points_a, points_b) = (utility(a_order, order), utility(b_order, order)) if result else (-len(a_order), -len(b_order))
                 results = (result, points_a, points_b, count)
                 score_a += points_a
                 score_b += points_b

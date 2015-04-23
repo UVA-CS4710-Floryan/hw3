@@ -26,7 +26,7 @@ class BaseNegotiator:
         # Return the utility given by the last offer - Do not modify this method.
     def utility(self):
         total = len(self.preferences)
-        return reduce(lambda points, item: points + ((total / (self.offer.index(item) + 1)) - abs(self.offer.index(item) - self.preferences.index(item))), self.offer, 0)
+        return reduce(lambda points, item: points + ((total / (self.offer.index(item) + 1)) - (2 / (self.preferences.index(item) + 1)) * abs(self.offer.index(item) - self.preferences.index(item))), self.offer, 0)
 
     # receive_utility(self : BaseNegotiator, utility : Float)
         # Store the utility the other negotiator received from their last offer
