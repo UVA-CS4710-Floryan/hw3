@@ -106,7 +106,7 @@ if __name__ == "__main__":
                 negotiator_a.receive_results(results)
                 negotiator_b.receive_results(results)
                 #print("{} negotiation:\n\tNegotiator A: {}\n\tNegotiator B: {}".format("Successful" if result else "Failed", points_a, points_b))
-                print("{},{},{},{}".format(argv[1],argv[2],points_a,points_b))
+                print("{},{},{},{},{}".format("Success" if result else "Failure", argv[1],argv[2],points_a,points_b))
             except:
                 print("{},{},{},{}".format(argv[1],argv[2],"Runtime Error","Runtime Error"))
     #print("Final result:\n\tNegotiator A: {}\n\tNegotiator B: {}".format(score_a, score_b))
